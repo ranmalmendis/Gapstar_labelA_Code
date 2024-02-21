@@ -1,57 +1,138 @@
-# Assignment
+# Car Parts Company Backend API Setup Guide
 
-Oh, hello!
----------
-First of all, awesome that you want to join our team! We already know that you're a cool person, but now we just want to know if you're a cool coder as well! To that end we've set up a basic exercise for you to complete.
+Welcome to the setup guide for the Car Parts Company Backend API. This document provides comprehensive instructions for initializing and running the backend environment of our car parts company project. By following these steps, you will be able to set up the project environment, run the Django application, create a superuser for database administration, and access API documentation through Swagger and Redoc.
 
-**Our tech stack!**
+## Prerequisites
 
-Before we start off, let me elaborate about our tech stack. For most projects, we use the following technologies:
+Before beginning the setup process, ensure you have the following installed on your system:
 
-* Python, for rapid development
-* Relational database, we mostly use PostgreSQL 
-* Widely accepted frameworks, we mostly use the Django Framework
-* Database ORM, because using a standard is faster and more secure (default provided by Django)
+- **Python 3.9 or higher**: The core programming language used for the project.
+- **pip**: The Python package installer, used for managing software packages written in Python.
+- **Virtual environment (optional but recommended)**: A tool for creating isolated Python environments, allowing you to manage project dependencies separately.
+- **Docker (optional)**: A platform for developing, shipping, and running applications inside lightweight containers. This is optional but recommended for a simplified deployment process.
 
-The assignment
----------
-A company specialised in car parts wants to modernise their company, and start selling their parts online. Being the pro car salesmen that they are, they decided to develop the front-end via another agency. They entrust the back-end to none other than Label A.
+## Installation Steps
 
-After some initial research, we've defined the following user stories on top of our backlog:
+Follow these detailed steps to get your development environment up and running:
 
-* As a company, I want all my products in a database, so I can offer them via our new platform to customers
-* As a client, I want to add a product to my shopping cart, so I can order it at a later stage
-* As a client, I want to remove a product from my shopping cart, so I can tailor the order to what I actually need
-* As a client, I want to order the current contents in my shopping cart, so I can receive the products I need to repair my car
-* As a client, I want to select a delivery date and time, so I will be there to receive the order
-* As a client, I want to see an overview of all the products, so I can choose which product I want
-* As a client, I want to view the details of a product, so I can see if the product satisfies my needs
+### 1. Obtain the Project Files
 
-Develop an API according to the user stories defined above. You should not spend more than 8 hours on this exercise, so put on your MVP glasses and prioritise according to what you think the product should minimally entail.
+First, you need to get the source files of the project onto your local machine. If a repository URL is provided, clone the repository using Git:
 
-Included in this repository:
+```bash
+git clone <repository-url>
+cd autocompany
+```
 
-* A freshly installed Django Framework (with not admin user -> go to this page to see how to create one: https://docs.djangoproject.com/en/1.8/intro/tutorial02/)
-* For convenience you can use .sqllite which is already configured in the project instead of PostgreSQL
-* Bonus points if you can include PostgreSQL in a Docker setup -> base Dockerfile is included
+### 2. Set Up a Virtual Environment (Optional)
 
-We can make the following assumptions:
+Creating a virtual environment is recommended to avoid conflicts between project dependencies and system-wide Python packages. To set up a virtual environment:
 
-* We don't have to worry about the front-end, but should think of a data format a JavaScript application can handle
-* We don't need to worry about the payment of the order. Who needs money anyway?
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+```
 
-How to score bonus points (ergo: we really advise you to tackle it this way):
+### 3. Install Required Packages
 
-* Implement a RESTful API
-* Use a ORM
-* Document how we can set up and instantiate the project, so we can easily test it functionally
+Install all dependencies listed in the `requirements.txt` file to ensure the project runs correctly:
 
-If you have any questions, feel free to contact us! Any feedback on this exercise is always welcome!
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Database Setup with Migrations
+
+Run Django migrations to set up your database schema:
+
+```bash
+python manage.py makemigrations  # Optional step to create new migrations based on model changes
+python manage.py migrate  # Apply migrations to the database
+```
+
+### 5. Create a Superuser for Django Admin
+
+Create a superuser account for accessing the Django admin interface. This account allows you to manage the application data:
+
+```bash
+python manage.py createsuperuser
+```
+
+Follow the command-line prompts to set up your superuser's username, email, and password.
+
+#or 
+
+#you can even use Test admin account with SQLite
+
+Test admin user's  credentials
+Admin user's username- admin
+password - admin@1A
 
 
-**Want to run the project in Docker?**
+## Running the Project
 
-- ```docker build -t autocompany .```
-- ``` docker run -p 80:80 -d autocompany```
-- Navigate to ```http://127.0.0.1/```
+### Starting the Django Development Server
 
+Launch the Django development server with the following command:
+
+```bash
+python manage.py runserver
+```
+
+### Accessing the Django Admin Panel
+
+Visit `http://localhost:8000/admin/` in your web browser and log in using the superuser credentials you created to access the Django admin panel.
+
+## API Documentation
+
+### Swagger UI
+
+For interactive API documentation and testing, navigate to `http://localhost:8000/swagger/`.
+
+### Redoc
+
+For a more detailed API documentation layout, visit `http://localhost:8000/redoc/`.
+
+### User Stories vs Endpoints
+
+As a company, I want all my products in a database, so I can offer them via our new platform to customers - POST Endpoint   /products/
+
+As a client, I want to add a product to my shopping cart, so I can order it at a later stage - POST Endpoint  /add-to-cart/
+
+As a client, I want to remove a product from my shopping cart, so I can tailor the order to what I actually need - /remove-from-cart/
+
+As a client, I want to order the current contents in my shopping cart, so I can receive the products I need to repair my car - POST Endpoint  /create-order/
+
+As a client, I want to select a delivery date and time, so I will be there to receive the order - POST Endpoint /orders/
+
+
+As a client, I want to see an overview of all the products, so I can choose which product I want - GET Endpoint  /products/
+
+As a client, I want to view the details of a product, so I can see if the product satisfies my needs - /products/{id}/
+
+### Test Data
+
+    Existing Product IDs in SQLite DB - 5,6,7
+
+    Existing Cart IDs in SQLite DB - 1
+
+    Existing User IDs in SQLite DB - 1 
+
+## Running in Docker (Optional)
+
+To containerize and run the application using Docker, follow these instructions:
+
+### Building the Docker Image
+
+```bash
+docker build -t autocompany .
+```
+
+### Running the Docker Container
+
+```bash
+docker run -p 8000:8000 -d autocompany
+```
+
+After the container starts, access Swagger documentation at `http://localhost:8000/swagger` to explore the available API endpoints.
+# Gapstar_labelA_Code
