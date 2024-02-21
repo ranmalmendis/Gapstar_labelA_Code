@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
+    'products',
+    'orders'
 ]
 
 MIDDLEWARE = [
@@ -74,12 +78,25 @@ WSGI_APPLICATION = 'autocompany.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
+if DEBUG==True:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'autocompany',  # Enter your database name here
+        'USER': 'postgres',  # Enter your postgres username here
+        'PASSWORD': 'postgres',  # Enter your postgres password here
+        'HOST': 'localhost',  # Set to empty string for localhost
+        'PORT': '',  # Set to empty string for default
     }
 }
+
 
 
 # Password validation
