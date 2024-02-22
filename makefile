@@ -10,3 +10,10 @@ migrate:
 run:
 	python3 manage.py runserver
 
+build:
+	docker build -t autocompany .
+
+docker_run:
+	docker run -p 8000:8000 -d autocompany
+
+
