@@ -77,12 +77,17 @@ class RemoveFromCartView(APIView):
         Adjusts the quantity of the cart item or removes it entirely if necessary.
         """
         product_id = request.data.get('product_id')
+     
+
         if not product_id:
             logger.error("Product ID not provided in the request.")
             return JsonResponse({'error': 'product_id is required'}, status=400)
         
         try:
-            cart = get_object_or_404(ShoppingCart, user=request.user)
+            cart=ShoppingCart.objects.get(
+                            user=request.user, 
+                            status='active'
+                        )        
             cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
             
             if cart_item.quantity > 1:
