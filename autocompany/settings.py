@@ -24,6 +24,7 @@ SECRET_KEY = 'django-insecure-7+om-9__!v%1ud!6-wwkf0hs0x7v1myz9jn#e9d8n@v#1^qk3p
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+USE_POSTGRESS=True
 
 ALLOWED_HOSTS = ['*']
 
@@ -78,7 +79,7 @@ WSGI_APPLICATION = 'autocompany.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if DEBUG==True:
+if USE_POSTGRESS==False:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -89,7 +90,7 @@ else:
     DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'autocompany',  # Enter your database name here
+        'NAME': 'postgres',  # Enter your database name here
         'USER': 'postgres',  # Enter your postgres username here
         'PASSWORD': 'postgres',  # Enter your postgres password here
         'HOST': 'localhost',  # Set to empty string for localhost

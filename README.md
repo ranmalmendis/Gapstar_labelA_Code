@@ -68,6 +68,27 @@ Follow the command-line prompts to set up your superuser's username, email, and 
 	python3 manage.py insert_sample_data
 ```
 
+#### Change the database to postgress
+
+
+Go to settings.py in autocompany folder. Then update the variable USE_POSTGRESS to true. Then update your db details accordingly in following code.
+
+```bash
+
+else:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',  # Enter your database name here
+        'USER': 'postgres',  # Enter your postgres username here
+        'PASSWORD': 'postgres',  # Enter your postgres password here
+        'HOST': 'localhost',  # Set to empty string for localhost
+        'PORT': '',  # Set to empty string for default
+    }
+}
+
+```
+
 
 Test admin user's  credentials
 
@@ -117,13 +138,7 @@ As a client, I want to see an overview of all the products, so I can choose whic
 
 As a client, I want to view the details of a product, so I can see if the product satisfies my needs - /products/{id}/
 
-### Test Data
-
-    Existing Product IDs in SQLite DB - 5,6,7
-
-    Existing Cart IDs in SQLite DB - 1
-
-    Existing User IDs in SQLite DB - 1 
+   
 
 ## Running in Docker (Optional)
 
