@@ -1,19 +1,36 @@
+import logging
 from rest_framework import serializers
 from .models import Product
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 class ProductSerializer(serializers.ModelSerializer):
-    """Define the serializer for the Product model. Meta class is used to specify which model the serializer should be based on
-    and which fields should be included in the serialized output. """
-    class Meta:
-        model = Product  # Specifies that the serializer is for the Product model.
-        # Defines the fields that should be included in the serialization. 
-        # This allows for both serialization (converting querysets and model instances to Python datatypes) 
-        # and deserialization (validating and converting incoming data back to complex types, after validating the incoming data).
-        fields = ['id', 'name', 'description', 'price', 'stock_quantity']  
-        # id: The primary key of the Product.
-        # name: The name of the Product.
-        # description: A detailed description of the Product.
-        # price: The price of the Product. This field uses DecimalField to accurately handle decimal numbers.
-        # stock_quantity: The quantity of the Product available in stock.
-        
+    """
+    Serializer for the Product model.
     
+    Serializes fields: id, name, description, price, and stock_quantity to Python data types for easy rendering to JSON or other content types. Also handles deserialization back to complex types after validating the incoming data.
+    """
+    
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'stock_quantity']
+
+    # Example of a method with error handling (theoretical)
+    def validate_price(self, value):
+        """
+        Validates that the price of the product is not negative.
+        
+        Args:
+            value (Decimal): The price value to validate.
+            
+        Returns:
+            Decimal: The validated price.
+            
+        Raises:
+            serializers.ValidationError: If the price is negative.
+        """
+        if value < 0:
+            logger.error(f"Validation error: Negative price value {value} submitted.")
+            raise serializers.ValidationError("Price must be a positive number.")
+        return value

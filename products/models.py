@@ -1,21 +1,33 @@
 from django.db import models
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Product(models.Model):
-    # The `name` field stores the name of the product. It's a character field with a maximum length of 255 characters.
-    # This limit ensures that product names are reasonably sized for display in UIs and for storage efficiency.
+    """
+    Represents a product with attributes for name, description, price, and stock quantity.
+    The model includes fields for storing product details and methods for product representation.
+    """
+
     name = models.CharField(max_length=255)
-
-    # The `description` field holds a detailed description of the product. It uses Django's `TextField`,
     description = models.TextField()
-
-    # The `price` field represents the price of the product. It's stored as a decimal field to accurately
     price = models.DecimalField(max_digits=10, decimal_places=2)
-
-    # The `stock_quantity` field represents how many units of the product are available in stock.
     stock_quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        # The `__str__` method returns the product name when an instance of the `Product` model is
-        # converted to a string. This is useful for admin panels, debugging, and any situation where
-        # a human-readable representation of the product is needed.
+        """
+        Returns a string representation of the product, primarily the product name.
+        Useful for admin panels, debugging, and any human-readable representation needs.
+        """
         return self.name
+
+    def save(self, *args, **kwargs):
+        """
+        Overridden save method to include error logging for database operations.
+        Ensures that any database errors are logged when attempting to save a product.
+        """
+        try:
+            super().save(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error saving Product {self.name}: {e}")
+            raise

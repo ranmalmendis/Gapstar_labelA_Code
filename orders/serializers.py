@@ -1,72 +1,85 @@
+import logging
 from rest_framework import serializers
 from .models import CartItem, Order
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
-# Get the User model from Django's authentication system.
-# This allows the serializer to reference the correct user model, 
-# regardless of whether the default user model or a custom user model is being used.
+logger = logging.getLogger(__name__)
+
+# This allows the serializer to reference the correct user model.
 User = get_user_model()
 
 class CartItemSerializer(serializers.ModelSerializer):
     """
-    Serializer for CartItem model.
+    Serializer for the CartItem model.
 
-    This serializer translates the CartItem model instances into a format that can be easily rendered into JSON.
-    It specifies which fields should be included in the serialized output.
+    This serializer is responsible for converting CartItem model instances into a JSON format and
+    vice versa, specifying which fields should be included in the serialized output.
     """
     class Meta:
         model = CartItem
         fields = ['id', 'cart', 'product', 'quantity']
-        # Specifies the model to be serialized and the fields to be included.
+
 
 class OrderSerializer(serializers.ModelSerializer):
     """
-    Serializer for Order model.
+    Serializer for the Order model.
 
-    In addition to serializing model fields, this serializer includes a read-only field
-    to represent the total_order_price, which is a property calculated from the associated ShoppingCart's items.
-    This approach encapsulates the logic for calculating the total order price within the model,
-    ensuring that the serializer remains focused on data representation.
+    In addition to serializing model fields, this serializer includes a read-only field to
+    represent the total_order_price. This calculated property comes from the associated
+    ShoppingCart's items, encapsulating the logic within the model for data representation.
     """
-    # A read-only field that dynamically retrieves the total_order_price from the Order model's property.
-    # This field is not directly associated with a model field but is derived from the order's cart.
     total_order_price = serializers.ReadOnlyField()
+    delivery_time = serializers.TimeField(format='%H:%M:%S', default='12:00:00', help_text="Default delivery time is 12:00:00")
+
 
     class Meta:
         model = Order
         fields = ['id', 'cart', 'user', 'ordered_at', 'delivery_date', 'delivery_time', 'total_order_price']
-        read_only_fields = ['id', 'ordered_at', 'total_order_price']
-        # id, ordered_at, and total_order_price fields are marked as read-only to prevent them from being
-        # altered through the API, thereby preserving the integrity of the data.
+        read_only_fields = ['id','cart','user','ordered_at', 'total_order_price']
+
 
     def create(self, validated_data):
-        """
-        Custom creation logic for an Order instance.
+        try:
+            order = super().create(validated_data)
+            order.cart.status = 'completed'  # Mark the cart as completed
+            order.cart.save()
+            return order
+        except IntegrityError as e:
+            logger.error(f"Error creating order due to cart uniqueness constraint: {e}")
+            raise serializers.ValidationError({"cart": "This cart has already been used for an order."})
+        except Exception as e:
+            logger.error(f"Error creating order: {e}")
+            raise serializers.ValidationError("An error occurred during order creation.")
 
-        This method can be overridden to include business logic that needs to be executed
-        when a new Order instance is created. For instance, setting additional fields
-        or modifying the validated_data before creating the Order instance.
-        """
-        # Calls the superclass's create method with the validated data.
-        return super().create(validated_data)
 
+    
     def update(self, instance, validated_data):
         """
-        Custom update logic for an Order instance.
-
-        This method can be overridden to implement custom update logic.
-        For example, it could be used to enforce certain constraints or to trigger
-        additional actions after an Order instance is updated.
+        Overridden update method to implement custom logic upon updating an Order instance.
         """
-        # Calls the superclass's update method with the instance and the validated data.
-        return super().update(instance, validated_data)
+        try:
+            return super().update(instance, validated_data)
+        except Exception as e:
+            logger.error(f"Error updating order: {e}")
+            raise serializers.ValidationError("An error occurred during order update.")
 
 
 class AddToCartSerializer(serializers.Serializer):
+    """
+    Serializer for adding items to the shopping cart.
+
+    Validates the product ID and quantity before adding them to the cart.
+    """
     product_id = serializers.IntegerField(help_text='ID of the product to add')
     quantity = serializers.IntegerField(default=1, help_text='Quantity of the product')
 
 
 class RemoveFromCartSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField(help_text='ID of the product to add')
-    quantity = serializers.IntegerField(default=1, help_text='Quantity of the product')
+    """
+    Serializer for removing items from the shopping cart.
+
+    Validates the product ID and quantity before removing them from the cart.
+    """
+    product_id = serializers.IntegerField(help_text='ID of the product to remove')
+    quantity = serializers.IntegerField(default=1, help_text='Quantity of the product to remove')

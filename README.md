@@ -60,12 +60,19 @@ python manage.py createsuperuser
 
 Follow the command-line prompts to set up your superuser's username, email, and password.
 
-#or 
+### or
 
-#you can even use Test admin account with SQLite
+#### insert sample data to the tables with following command
+
+```bash
+	python3 manage.py insert_sample_data
+```
+
 
 Test admin user's  credentials
+
 Admin user's username- admin
+
 password - admin@1A
 
 

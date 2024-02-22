@@ -1,35 +1,36 @@
-# Import necessary Django and Django REST Framework modules
-from django.shortcuts import render  # Used for rendering HTML templates (not used in this API view but available if needed)
-from rest_framework import viewsets  # Import the viewsets module from Django REST Framework
-
-# Import the Product model and ProductSerializer from the current application's modules
+import logging
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from products.models import Product
-from .serializers import ProductSerializer  # Import the ProductSerializer from the serializers.py file in the same directory
+from .serializers import ProductSerializer
 
-# Define a class-based view to handle CRUD operations for Product entities
+# Configure logging
+logger = logging.getLogger(__name__)
+
 class ProductViewSet(viewsets.ModelViewSet):
     """
-    ProductViewSet extends ModelViewSet from Django REST Framework to provide 
-    a full set of CRUD operations for Product entities.
-
+    Provides a full set of CRUD operations for Product entities using Django REST Framework's ModelViewSet.
+    
     Attributes:
-        queryset (queryset): The base queryset that the view will use to retrieve Product instances. 
-                             This is set to retrieve all instances of the Product model.
-        serializer_class (ProductSerializer): The serializer class that will be used to serialize and 
-                                              deserialize Product instances. This controls how the 
-                                              Product data is converted to and from JSON format when 
-                                              handling HTTP requests.
-
-    I ensure that this viewset is designed to be easily 
-    extensible and maintainable, adhering to best practices in Django and Django REST Framework 
-    development. It leverages Django's powerful ORM and REST Framework's serializers to provide 
-    a robust API endpoint for managing Product data.
+        queryset: Specifies the list of items for this viewset.
+        serializer_class: Defines the serializer class for serializing and deserializing the Product instances.
+    
+    Automatically provides `list`, `create`, `retrieve`, `update`, and `destroy` actions.
+    Utilizes DRF's built-in pagination for efficient data retrieval.
     """
 
-    # Set the queryset to retrieve all Product instances from the database
-    # This allows the viewset to know which records to include when responding to GET requests
     queryset = Product.objects.all()
-
-    # Specify the serializer class to be used for serializing and deserializing data
-    # The ProductSerializer is responsible for converting Product instances to JSON format and vice versa
     serializer_class = ProductSerializer
+
+    def list(self, request, *args, **kwargs):
+        """
+        Overrides the list method to provide custom error handling and logging.
+        Returns a paginated list of Product instances or an error message upon failure.
+        """
+        try:
+            # Pagination is handled by DRF's settings; no need for manual pagination here.
+            # Just call the super method and let DRF handle the rest.
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error fetching product list: {e}")
+            return Response({"error": f"Did you enter the correct page number; {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
